@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starr Support</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            min-width: 250px;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-container {
+            display: flex;
+            flex: 1;
+        }
+
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: white;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        /* Notifications */
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .notification-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: var(--bg-main);
+        }
+
+        .notification-item.unread {
+            background: #eff6ff;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Profile Cards */
+        .profile-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .profile-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Task List */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 1rem;
+            background: var(--bg-main);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item.overdue {
+            border-left: 4px solid var(--danger);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+
+        /* Medication Schedule */
+        .med-item {
+            padding: 1rem;
+            background: var(--bg-main);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .med-item.due-soon {
+            border-left-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .med-item.overdue {
+            border-left-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .med-item.completed {
+            border-left-color: var(--secondary);
+            background: #f0fdf4;
+        }
+
+        .med-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .med-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: var(--secondary);
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Initialize demo data
+        const initializeData = () => {
+            const storedData = localStorage.getItem('careManagementData');
+            if (storedData) {
+                return JSON.parse(storedData);
+            }
+
+            const defaultData = {
+                users: [
+                    { id: 1, name: 'Sarah Johnson', email: 'sarah@starrsupport.com', role: 'manager', password: 'manager123', projects: ['project1', 'project2'] },
+                    { id: 2, name: 'Mike Chen', email: 'mike@starrsupport.com', role: 'support_worker', password: 'worker123', projects: ['project1'] },
+                    { id: 3, name: 'Emma Davis', email: 'emma@starrsupport.com', role: 'support_worker', password: 'worker123', projects: ['project2'] },
+                    { id: 4, name: 'James Wilson', email: 'james@starrsupport.com', role: 'support_worker', password: 'worker123', projects: ['project1', 'project2'] },
+                ],
+                projects: [
+                    { id: 'project1', name: 'Maple House', address: '123 Maple St' },
+                    { id: 'project2', name: 'Oak Gardens', address: '456 Oak Ave' },
+                ],
+                pws: [
+                    { 
+                        id: 1, 
+                        name: 'John Smith', 
+                        age: 34, 
+                        project: 'project1',
+                        conditions: ['Autism', 'Epilepsy'],
+                        allergies: ['Penicillin'],
+                        emergencyContact: 'Mother: 555-0123',
+                        photo: 'JS'
+                    },
+                    { 
+                        id: 2, 
+                        name: 'Mary Brown', 
+                        age: 28, 
+                        project: 'project1',
+                        conditions: ['Down Syndrome'],
+                        allergies: ['None'],
+                        emergencyContact: 'Sister: 555-0456',
+                        photo: 'MB'
+                    },
+                    { 
+                        id: 3, 
+                        name: 'David Lee', 
+                        age: 42, 
+                        project: 'project2',
+                        conditions: ['Cerebral Palsy'],
+                        allergies: ['Lactose'],
+                        emergencyContact: 'Father: 555-0789',
+                        photo: 'DL'
+                    },
+                ],
+                medications: [
+                    { 
+                        id: 1, 
+                        pwsId: 1, 
+                        name: 'Keppra 500mg', 
+                        time: '08:00',
+                        frequency: 'Twice Daily',
+                        administered: false,
+                        instructions: 'Take with food'
+                    },
+                    { 
+                        id: 2, 
+                        pwsId: 1, 
+                        name: 'Keppra 500mg', 
+                        time: '20:00',
+                        frequency: 'Twice Daily',
+                        administered: false,
+                        instructions: 'Take with food'
+                    },
+                    { 
+                        id: 3, 
+                        pwsId: 2, 
+                        name: 'Multivitamin', 
+                        time: '09:00',
+                        frequency: 'Daily',
+                        administered: false,
+                        instructions: 'With breakfast'
+                    },
+                    { 
+                        id: 4, 
+                        pwsId: 3, 
+                        name: 'Baclofen 10mg', 
+                        time: '08:00',
+                        frequency: 'Three times daily',
+                        administered: false,
+                        instructions: 'For muscle spasticity'
+                    },
+                ],
+                tasks: [
+                    { 
+                        id: 1, 
+                        pwsId: 1, 
+                        title: 'Morning personal care routine',
+                        time: '07:00',
+                        completed: false,
+                        createdBy: 1
+                    },
+                    { 
+                        id: 2, 
+                        pwsId: 1, 
+                        title: 'Check fluid intake - target 2L',
+                        time: '12:00',
+                        completed: false,
+                        createdBy: 1
+                    },
+                    { 
+                        id: 3, 
+                        pwsId: 2, 
+                        title: 'Assist with lunch preparation',
+                        time: '12:30',
+                        completed: false,
+                        createdBy: 1
+                    },
+                    { 
+                        id: 4, 
+                        pwsId: 3, 
+                        title: 'Physiotherapy exercises',
+                        time: '14:00',
+                        completed: false,
+                        createdBy: 1
+                    },
+                ],
+                notifications: [
+                    {
+                        id: 1,
+                        title: 'Medication Due',
+                        message: 'John Smith - Keppra 500mg due at 08:00',
+                        time: new Date().toISOString(),
+                        read: false,
+                        type: 'medication'
+                    },
+                    {
+                        id: 2,
+                        title: 'Task Reminder',
+                        message: 'Morning personal care routine for John Smith',
+                        time: new Date().toISOString(),
+                        read: false,
+                        type: 'task'
+                    }
+                ],
+                notes: []
+            };
+
+            localStorage.setItem('careManagementData', JSON.stringify(defaultData));
+            return defaultData;
+        };
+
+        // Main App Component
+        function App() {
+            const [currentUser, setCurrentUser] = useState(null);
+            const [data, setData] = useState(initializeData());
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [selectedPWS, setSelectedPWS] = useState(null);
+            const [showNotifications, setShowNotifications] = useState(false);
+            const [showModal, setShowModal] = useState(false);
+            const [modalContent, setModalContent] = useState(null);
+
+            // Save data to localStorage whenever it changes
+            useEffect(() => {
+                localStorage.setItem('careManagementData', JSON.stringify(data));
+            }, [data]);
+
+            // Check for due medications and missed tasks
+            useEffect(() => {
+                if (!currentUser) return;
+
+                const checkInterval = setInterval(() => {
+                    const now = new Date();
+                    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+                    // Check medications
+                    data.medications.forEach(med => {
+                        if (!med.administered && med.time === currentTime) {
+                            addNotification({
+                                title: 'Medication Due Now',
+                                message: `${getPWSName(med.pwsId)} - ${med.name}`,
+                                type: 'medication'
+                            });
+                        }
+                    });
+
+                    // Check tasks
+                    data.tasks.forEach(task => {
+                        if (!task.completed && task.time < currentTime) {
+                            addNotification({
+                                title: 'Overdue Task',
+                                message: `${task.title} for ${getPWSName(task.pwsId)}`,
+                                type: 'task'
+                            });
+                        }
+                    });
+                }, 60000); // Check every minute
+
+                return () => clearInterval(checkInterval);
+            }, [currentUser, data]);
+
+            const addNotification = (notification) => {
+                const newNotification = {
+                    id: Date.now(),
+                    ...notification,
+                    time: new Date().toISOString(),
+                    read: false
+                };
+
+                setData(prev => ({
+                    ...prev,
+                    notifications: [newNotification, ...prev.notifications]
+                }));
+            };
+
+            const getPWSName = (pwsId) => {
+                const pws = data.pws.find(p => p.id === pwsId);
+                return pws ? pws.name : 'Unknown';
+            };
+
+            const getUserProjects = () => {
+                if (!currentUser) return [];
+                return currentUser.projects || [];
+            };
+
+            const getAccessiblePWS = () => {
+                const userProjects = getUserProjects();
+                return data.pws.filter(pws => userProjects.includes(pws.project));
+            };
+
+            const markNotificationRead = (notificationId) => {
+                setData(prev => ({
+                    ...prev,
+                    notifications: prev.notifications.map(n => 
+                        n.id === notificationId ? { ...n, read: true } : n
+                    )
+                }));
+            };
+
+            const markMedicationAdministered = (medId) => {
+                setData(prev => ({
+                    ...prev,
+                    medications: prev.medications.map(m => 
+                        m.id === medId ? { ...m, administered: true, administeredAt: new Date().toISOString() } : m
+                    )
+                }));
+            };
+
+            const markTaskCompleted = (taskId) => {
+                setData(prev => ({
+                    ...prev,
+                    tasks: prev.tasks.map(t => 
+                        t.id === taskId ? { ...t, completed: true, completedAt: new Date().toISOString() } : t
+                    )
+                }));
+            };
+
+            const addTask = (task) => {
+                const newTask = {
+                    id: Date.now(),
+                    ...task,
+                    createdBy: currentUser.id,
+                    completed: false
+                };
+                setData(prev => ({
+                    ...prev,
+                    tasks: [...prev.tasks, newTask]
+                }));
+            };
+
+            const addMedication = (med) => {
+                const newMed = {
+                    id: Date.now(),
+                    ...med,
+                    administered: false
+                };
+                setData(prev => ({
+                    ...prev,
+                    medications: [...prev.medications, newMed]
+                }));
+            };
+
+            if (!currentUser) {
+                return <LoginPage onLogin={setCurrentUser} users={data.users} />;
+            }
+
+            const unreadNotifications = data.notifications.filter(n => !n.read).length;
+
+            return (
+                <div className="app-container">
+                    <header className="header">
+                        <div className="header-title">Starr Support</div>
+                        <div className="header-user">
+                            <span className="user-badge">{currentUser.role.replace('_', ' ').toUpperCase()}</span>
+                            <span>{currentUser.name}</span>
+                            <div style={{ position: 'relative' }}>
+                                <div 
+                                    className="notification-badge"
+                                    onClick={() => setShowNotifications(!showNotifications)}
+                                >
+                                    🔔
+                                    {unreadNotifications > 0 && (
+                                        <span className="notification-count">{unreadNotifications}</span>
+                                    )}
+                                </div>
+                                {showNotifications && (
+                                    <NotificationPanel 
+                                        notifications={data.notifications}
+                                        onMarkRead={markNotificationRead}
+                                        onClose={() => setShowNotifications(false)}
+                                    />
+                                )}
+                            </div>
+                            <button className="btn btn-sm btn-danger" onClick={() => setCurrentUser(null)}>
+                                Logout
+                            </button>
+                        </div>
+                    </header>
+
+                    <div className="main-container">
+                        <nav className="nav-container">
+                            <div 
+                                className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('dashboard')}
+                            >
+                                📊 Dashboard
+                            </div>
+                            <div 
+                                className={`nav-item ${currentView === 'pws' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('pws')}
+                            >
+                                👥 People We Support
+                            </div>
+                            <div 
+                                className={`nav-item ${currentView === 'medications' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('medications')}
+                            >
+                                💊 Medications
+                            </div>
+                            <div 
+                                className={`nav-item ${currentView === 'tasks' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('tasks')}
+                            >
+                                ✅ Tasks
+                            </div>
+                            {currentUser.role === 'manager' && (
+                                <>
+                                    <div 
+                                        className={`nav-item ${currentView === 'staff' ? 'active' : ''}`}
+                                        onClick={() => setCurrentView('staff')}
+                                    >
+                                        👨‍💼 Staff Management
+                                    </div>
+                                    <div 
+                                        className={`nav-item ${currentView === 'reports' ? 'active' : ''}`}
+                                        onClick={() => setCurrentView('reports')}
+                                    >
+                                        📈 Reports
+                                    </div>
+                                </>
+                            )}
+                            <div 
+                                className={`nav-item ${currentView === 'profile' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('profile')}
+                            >
+                                ⚙️ My Profile
+                            </div>
+                        </nav>
+
+                        <main className="content">
+                            {currentView === 'dashboard' && (
+                                <Dashboard 
+                                    data={data}
+                                    currentUser={currentUser}
+                                    accessiblePWS={getAccessiblePWS()}
+                                    onNavigate={setCurrentView}
+                                />
+                            )}
+                            {currentView === 'pws' && (
+                                <PWSList 
+                                    pwsList={getAccessiblePWS()}
+                                    onSelectPWS={(pws) => {
+                                        setSelectedPWS(pws);
+                                        setCurrentView('pws-detail');
+                                    }}
+                                    currentUser={currentUser}
+                                />
+                            )}
+                            {currentView === 'pws-detail' && selectedPWS && (
+                                <PWSDetail 
+                                    pws={selectedPWS}
+                                    medications={data.medications.filter(m => m.pwsId === selectedPWS.id)}
+                                    tasks={data.tasks.filter(t => t.pwsId === selectedPWS.id)}
+                                    onBack={() => setCurrentView('pws')}
+                                    onMarkMedication={markMedicationAdministered}
+                                    onMarkTask={markTaskCompleted}
+                                    currentUser={currentUser}
+                                />
+                            )}
+                            {currentView === 'medications' && (
+                                <MedicationList 
+                                    medications={data.medications}
+                                    pwsList={data.pws}
+                                    onMarkAdministered={markMedicationAdministered}
+                                    onAddMedication={currentUser.role === 'manager' ? addMedication : null}
+                                    accessiblePWS={getAccessiblePWS()}
+                                />
+                            )}
+                            {currentView === 'tasks' && (
+                                <TaskList 
+                                    tasks={data.tasks}
+                                    pwsList={data.pws}
+                                    onMarkCompleted={markTaskCompleted}
+                                    onAddTask={currentUser.role === 'manager' ? addTask : null}
+                                    accessiblePWS={getAccessiblePWS()}
+                                />
+                            )}
+                            {currentView === 'staff' && currentUser.role === 'manager' && (
+                                <StaffManagement users={data.users} projects={data.projects} />
+                            )}
+                            {currentView === 'reports' && currentUser.role === 'manager' && (
+                                <Reports data={data} />
+                            )}
+                            {currentView === 'profile' && (
+                                <UserProfile user={currentUser} />
+                            )}
+                        </main>
+                    </div>
+
+                    {showModal && (
+                        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">{modalContent?.title}</h2>
+                                    <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+                                </div>
+                                {modalContent?.content}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Login Component
+        function LoginPage({ onLogin, users }) {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    onLogin(user);
+                } else {
+                    setError('Invalid credentials. Try: sarah@starrsupport.com / manager123 or mike@starrsupport.com / worker123');
+                }
+            };
+
+            return (
+                <div className="login-container">
+                    <div className="login-card">
+                        <h1 className="login-title">Starr Support</h1>
+                        <form onSubmit={handleLogin}>
+                            <div className="form-group">
+                                <label className="form-label">Email</label>
+                                <input 
+                                    type="email"
+                                    className="form-input"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Enter your email"
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Password</label>
+                                <input 
+                                    type="password"
+                                    className="form-input"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Enter your password"
+                                    required
+                                />
+                            </div>
+                            {error && (
+                                <div style={{color: 'var(--danger)', marginBottom: '1rem', fontSize: '0.875rem'}}>
+                                    {error}
+                                </div>
+                            )}
+                            <button type="submit" className="btn btn-primary" style={{width: '100%'}}>
+                                Login
+                            </button>
+                        </form>
+                        <div style={{marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', textAlign: 'center'}}>
+                            <p><strong>Demo Accounts:</strong></p>
+                            <p>Manager: sarah@starrsupport.com / manager123</p>
+                            <p>Support Worker: mike@starrsupport.com / worker123</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Dashboard Component
+        function Dashboard({ data, currentUser, accessiblePWS, onNavigate }) {
+            const todayMeds = data.medications.filter(m => !m.administered && accessiblePWS.find(p => p.id === m.pwsId));
+            const todayTasks = data.tasks.filter(t => !t.completed && accessiblePWS.find(p => p.id === t.pwsId));
+            const overdueItems = [...todayMeds, ...todayTasks].filter(item => {
+                const now = new Date();
+                const itemTime = item.time;
+                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                return itemTime < currentTime;
+            });
+
+            return (
+                <div>
+                    <h1 style={{marginBottom: '2rem'}}>Welcome back, {currentUser.name}</h1>
+                    
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-value">{accessiblePWS.length}</div>
+                            <div className="stat-label">People Under Your Care</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{todayMeds.length}</div>
+                            <div className="stat-label">Medications Due Today</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{todayTasks.length}</div>
+                            <div className="stat-label">Tasks Pending</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value" style={{color: overdueItems.length > 0 ? 'var(--danger)' : 'var(--secondary)'}}>
+                                {overdueItems.length}
+                            </div>
+                            <div className="stat-label">Overdue Items</div>
+                        </div>
+                    </div>
+
+                    <div className="card-grid">
+                        <div className="card">
+                            <h2 className="card-title">Upcoming Medications</h2>
+                            {todayMeds.slice(0, 5).map(med => {
+                                const pws = accessiblePWS.find(p => p.id === med.pwsId);
+                                return (
+                                    <div key={med.id} className="med-item">
+                                        <div className="med-name">{med.name}</div>
+                                        <div className="med-time">{pws?.name} - {med.time}</div>
+                                    </div>
+                                );
+                            })}
+                            {todayMeds.length === 0 && (
+                                <p style={{color: 'var(--text-secondary)'}}>All medications administered ✓</p>
+                            )}
+                        </div>
+
+                        <div className="card">
+                            <h2 className="card-title">Today's Tasks</h2>
+                            {todayTasks.slice(0, 5).map(task => {
+                                const pws = accessiblePWS.find(p => p.id === task.pwsId);
+                                return (
+                                    <div key={task.id} className="task-item">
+                                        <div>
+                                            <div style={{fontWeight: 600}}>{task.title}</div>
+                                            <div style={{fontSize: '0.875rem', color: 'var(--text-secondary)'}}>
+                                                {pws?.name} - {task.time}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {todayTasks.length === 0 && (
+                                <p style={{color: 'var(--text-secondary)'}}>All tasks completed ✓</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2 className="card-title">Quick Actions</h2>
+                        <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                            <button className="btn btn-primary" onClick={() => onNavigate('pws')}>
+                                View All People We Support
+                            </button>
+                            <button className="btn btn-secondary" onClick={() => onNavigate('medications')}>
+                                Medication Schedule
+                            </button>
+                            <button className="btn btn-secondary" onClick={() => onNavigate('tasks')}>
+                                Task List
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // PWS List Component
+        function PWSList({ pwsList, onSelectPWS, currentUser }) {
+            return (
+                <div>
+                    <h1 style={{marginBottom: '2rem'}}>People We Support</h1>
+                    <div className="card-grid">
+                        {pwsList.map(pws => (
+                            <div key={pws.id} className="profile-card" onClick={() => onSelectPWS(pws)}>
+                                <div className="profile-header">
+                                    <div className="profile-avatar">{pws.photo}</div>
+                                    <div>
+                                        <div className="profile-name">{pws.name}</div>
+                                        <div className="profile-info">Age: {pws.age}</div>
+                                    </div>
+                                </div>
+                                <div className="profile-info">
+                                    <strong>Conditions:</strong> {pws.conditions.join(', ')}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // PWS Detail Component
+        function PWSDetail({ pws, medications, tasks, onBack, onMarkMedication, onMarkTask, currentUser }) {
+            return (
+                <div>
+                    <button className="btn btn-secondary btn-sm" onClick={onBack} style={{marginBottom: '1rem'}}>
+                        ← Back to List
+                    </button>
+                    
+                    <div className="card">
+                        <div className="profile-header">
+                            <div className="profile-avatar" style={{width: '80px', height: '80px', fontSize: '2rem'}}>
+                                {pws.photo}
+                            </div>
+                            <div>
+                                <h1 style={{margin: 0}}>{pws.name}</h1>
+                                <p style={{color: 'var(--text-secondary)', margin: '0.25rem 0'}}>Age: {pws.age}</p>
+                            </div>
+                        </div>
+
+                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '2rem'}}>
+                            <div>
+                                <h3>Medical Conditions</h3>
+                                {pws.conditions.map((condition, i) => (
+                                    <span key={i} className="badge badge-primary" style={{marginRight: '0.5rem'}}>
+                                        {condition}
+                                    </span>
+                                ))}
+                            </div>
+                            <div>
+                                <h3>Allergies</h3>
+                                {pws.allergies.map((allergy, i) => (
+                                    <span key={i} className="badge badge-danger" style={{marginRight: '0.5rem'}}>
+                                        {allergy}
+                                    </span>
+                                ))}
+                            </div>
+                            <div>
+                                <h3>Emergency Contact</h3>
+                                <p>{pws.emergencyContact}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card-grid">
+                        <div className="card">
+                            <h2 className="card-title">Medications</h2>
+                            {medications.map(med => (
+                                <div key={med.id} className={`med-item ${med.administered ? 'completed' : ''}`}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <div>
+                                            <div className="med-name">{med.name}</div>
+                                            <div className="med-time">{med.time} - {med.frequency}</div>
+                                            <div style={{fontSize: '0.875rem', marginTop: '0.25rem'}}>
+                                                {med.instructions}
+                                            </div>
+                                        </div>
+                                        {!med.administered && (
+                                            <button 
+                                                className="btn btn-sm btn-secondary"
+                                                onClick={() => onMarkMedication(med.id)}
+                                            >
+                                                Mark Given
+                                            </button>
+                                        )}
+                                        {med.administered && (
+                                            <span className="badge badge-success">Administered</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="card">
+                            <h2 className="card-title">Tasks</h2>
+                            {tasks.map(task => (
+                                <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                                    <div>
+                                        <div style={{fontWeight: 600}}>{task.title}</div>
+                                        <div style={{fontSize: '0.875rem', color: 'var(--text-secondary)'}}>
+                                            Due: {task.time}
+                                        </div>
+                                    </div>
+                                    {!task.completed && (
+                                        <button 
+                                            className="btn btn-sm btn-secondary"
+                                            onClick={() => onMarkTask(task.id)}
+                                        >
+                                            Complete
+                                        </button>
+                                    )}
+                                    {task.completed && (
+                                        <span className="badge badge-success">Done</span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Medication List Component
+        function MedicationList({ medications, pwsList, onMarkAdministered, onAddMedication, accessiblePWS }) {
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [newMed, setNewMed] = useState({ pwsId: '', name: '', time: '', frequency: '', instructions: '' });
+
+            const accessibleMeds = medications.filter(m => 
+                accessiblePWS.find(p => p.id === m.pwsId)
+            );
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onAddMedication({ ...newMed, pwsId: parseInt(newMed.pwsId) });
+                setNewMed({ pwsId: '', name: '', time: '', frequency: '', instructions: '' });
+                setShowAddForm(false);
+            };
+
+            return (
+                <div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+                        <h1>Medication Schedule</h1>
+                        {onAddMedication && (
+                            <button className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
+                                + Add Medication
+                            </button>
+                        )}
+                    </div>
+
+                    {showAddForm && (
+                        <div className="card" style={{marginBottom: '2rem'}}>
+                            <h2 className="card-title">Add New Medication</h2>
+                            <form onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label className="form-label">Person</label>
+                                    <select 
+                                        className="form-select"
+                                        value={newMed.pwsId}
+                                        onChange={(e) => setNewMed({...newMed, pwsId: e.target.value})}
+                                        required
+                                    >
+                                        <option value="">Select person...</option>
+                                        {accessiblePWS.map(pws => (
+                                            <option key={pws.id} value={pws.id}>{pws.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Medication Name</label>
+                                    <input 
+                                        type="text"
+                                        className="form-input"
+                                        value={newMed.name}
+                                        onChange={(e) => setNewMed({...newMed, name: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Time</label>
+                                    <input 
+                                        type="time"
+                                        className="form-input"
+                                        value={newMed.time}
+                                        onChange={(e) => setNewMed({...newMed, time: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Frequency</label>
+                                    <input 
+                                        type="text"
+                                        className="form-input"
+                                        value={newMed.frequency}
+                                        onChange={(e) => setNewMed({...newMed, frequency: e.target.value})}
+                                        placeholder="e.g., Twice Daily"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Instructions</label>
+                                    <input 
+                                        type="text"
+                                        className="form-input"
+                                        value={newMed.instructions}
+                                        onChange={(e) => setNewMed({...newMed, instructions: e.target.value})}
+                                        placeholder="e.g., Take with food"
+                                    />
+                                </div>
+                                <div style={{display: 'flex', gap: '1rem'}}>
+                                    <button type="submit" className="btn btn-primary">Add Medication</button>
+                                    <button type="button" className="btn btn-secondary" onClick={() => setShowAddForm(false)}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    <div className="card">
+                        {accessibleMeds.map(med => {
+                            const pws = pwsList.find(p => p.id === med.pwsId);
+                            const now = new Date();
+                            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                            const isDueSoon = !med.administered && med.time <= currentTime;
+                            
+                            return (
+                                <div 
+                                    key={med.id} 
+                                    className={`med-item ${med.administered ? 'completed' : isDueSoon ? 'due-soon' : ''}`}
+                                >
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <div>
+                                            <div className="med-name">{med.name}</div>
+                                            <div className="med-time">
+                                                {pws?.name} - {med.time} ({med.frequency})
+                                            </div>
+                                            <div style={{fontSize: '0.875rem', marginTop: '0.25rem', color: 'var(--text-secondary)'}}>
+                                                {med.instructions}
+                                            </div>
+                                        </div>
+                                        <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                                            {med.administered && (
+                                                <span className="badge badge-success">✓ Administered</span>
+                                            )}
+                                            {!med.administered && isDueSoon && (
+                                                <span className="badge badge-warning">Due Now</span>
+                                            )}
+                                            {!med.administered && (
+                                                <button 
+                                                    className="btn btn-sm btn-secondary"
+                                                    onClick={() => onMarkAdministered(med.id)}
+                                                >
+                                                    Mark Given
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        // Task List Component
+        function TaskList({ tasks, pwsList, onMarkCompleted, onAddTask, accessiblePWS }) {
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [newTask, setNewTask] = useState({ pwsId: '', title: '', time: '' });
+
+            const accessibleTasks = tasks.filter(t => 
+                accessiblePWS.find(p => p.id === t.pwsId)
+            );
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onAddTask({ ...newTask, pwsId: parseInt(newTask.pwsId) });
+                setNewTask({ pwsId: '', title: '', time: '' });
+                setShowAddForm(false);
+            };
+
+            return (
+                <div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem'}}>
+                        <h1>Tasks</h1>
+                        {onAddTask && (
+                            <button className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
+                                + Add Task
+                            </button>
+                        )}
+                    </div>
+
+                    {showAddForm && (
+                        <div className="card" style={{marginBottom: '2rem'}}>
+                            <h2 className="card-title">Add New Task</h2>
+                            <form onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label className="form-label">Person</label>
+                                    <select 
+                                        className="form-select"
+                                        value={newTask.pwsId}
+                                        onChange={(e) => setNewTask({...newTask, pwsId: e.target.value})}
+                                        required
+                                    >
+                                        <option value="">Select person...</option>
+                                        {accessiblePWS.map(pws => (
+                                            <option key={pws.id} value={pws.id}>{pws.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Task Description</label>
+                                    <input 
+                                        type="text"
+                                        className="form-input"
+                                        value={newTask.title}
+                                        onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Due Time</label>
+                                    <input 
+                                        type="time"
+                                        className="form-input"
+                                        value={newTask.time}
+                                        onChange={(e) => setNewTask({...newTask, time: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div style={{display: 'flex', gap: '1rem'}}>
+                                    <button type="submit" className="btn btn-primary">Add Task</button>
+                                    <button type="button" className="btn btn-secondary" onClick={() => setShowAddForm(false)}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    <div className="card">
+                        {accessibleTasks.map(task => {
+                            const pws = pwsList.find(p => p.id === task.pwsId);
+                            const now = new Date();
+                            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                            const isOverdue = !task.completed && task.time < currentTime;
+                            
+                            return (
+                                <div 
+                                    key={task.id} 
+                                    className={`task-item ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}
+                                >
+                                    <div style={{flex: 1}}>
+                                        <div style={{fontWeight: 600}}>{task.title}</div>
+                                        <div style={{fontSize: '0.875rem', color: 'var(--text-secondary)'}}>
+                                            {pws?.name} - Due: {task.time}
+                                        </div>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                                        {task.completed && (
+                                            <span className="badge badge-success">✓ Completed</span>
+                                        )}
+                                        {isOverdue && !task.completed && (
+                                            <span className="badge badge-danger">Overdue</span>
+                                        )}
+                                        {!task.completed && (
+                                            <button 
+                                                className="btn btn-sm btn-secondary"
+                                                onClick={() => onMarkCompleted(task.id)}
+                                            >
+                                                Mark Complete
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        // Staff Management Component
+        function StaffManagement({ users, projects }) {
+            return (
+                <div>
+                    <h1 style={{marginBottom: '2rem'}}>Staff Management</h1>
+                    <div className="card">
+                        <h2 className="card-title">All Staff Members ({users.length})</h2>
+                        {users.map(user => (
+                            <div key={user.id} className="profile-card">
+                                <div className="profile-header">
+                                    <div className="profile-avatar">
+                                        {user.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div style={{flex: 1}}>
+                                        <div className="profile-name">{user.name}</div>
+                                        <div className="profile-info">{user.email}</div>
+                                        <div style={{marginTop: '0.5rem'}}>
+                                            <span className="badge badge-primary">
+                                                {user.role.replace('_', ' ').toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{marginTop: '1rem'}}>
+                                    <strong>Assigned Projects:</strong>
+                                    <div style={{marginTop: '0.5rem'}}>
+                                        {user.projects.map(projId => {
+                                            const proj = projects.find(p => p.id === projId);
+                                            return (
+                                                <span key={projId} className="badge badge-secondary" style={{marginRight: '0.5rem'}}>
+                                                    {proj?.name}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Reports Component
+        function Reports({ data }) {
+            const completedMeds = data.medications.filter(m => m.administered).length;
+            const totalMeds = data.medications.length;
+            const completedTasks = data.tasks.filter(t => t.completed).length;
+            const totalTasks = data.tasks.length;
+
+            return (
+                <div>
+                    <h1 style={{marginBottom: '2rem'}}>Reports & Analytics</h1>
+                    
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-value">{Math.round((completedMeds/totalMeds) * 100)}%</div>
+                            <div className="stat-label">Medication Compliance</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{Math.round((completedTasks/totalTasks) * 100)}%</div>
+                            <div className="stat-label">Task Completion Rate</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{data.pws.length}</div>
+                            <div className="stat-label">Total People Supported</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{data.users.filter(u => u.role === 'support_worker').length}</div>
+                            <div className="stat-label">Active Support Workers</div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2 className="card-title">Recent Activity</h2>
+                        <p style={{color: 'var(--text-secondary)'}}>
+                            Detailed analytics and reporting features coming soon. This will include medication adherence trends, 
+                            task completion patterns, staff activity logs, and exportable reports.
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        // User Profile Component
+        function UserProfile({ user }) {
+            return (
+                <div>
+                    <h1 style={{marginBottom: '2rem'}}>My Profile</h1>
+                    <div className="card">
+                        <div className="profile-header">
+                            <div className="profile-avatar" style={{width: '80px', height: '80px', fontSize: '2rem'}}>
+                                {user.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                                <h2 style={{margin: 0}}>{user.name}</h2>
+                                <p style={{color: 'var(--text-secondary)', margin: '0.5rem 0'}}>
+                                    {user.email}
+                                </p>
+                                <span className="badge badge-primary">
+                                    {user.role.replace('_', ' ').toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={{marginTop: '2rem'}}>
+                            <h3>Assigned Projects</h3>
+                            <p style={{color: 'var(--text-secondary)'}}>
+                                You have access to {user.projects.length} project(s)
+                            </p>
+                        </div>
+
+                        <div style={{marginTop: '2rem'}}>
+                            <button className="btn btn-secondary">Edit Profile</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Notification Panel Component
+        function NotificationPanel({ notifications, onMarkRead, onClose }) {
+            return (
+                <div className="notification-panel">
+                    <div style={{padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <strong>Notifications</strong>
+                        <button className="close-btn" onClick={onClose}>×</button>
+                    </div>
+                    {notifications.length === 0 && (
+                        <div style={{padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)'}}>
+                            No notifications
+                        </div>
+                    )}
+                    {notifications.map(notification => (
+                        <div 
+                            key={notification.id}
+                            className={`notification-item ${!notification.read ? 'unread' : ''}`}
+                            onClick={() => onMarkRead(notification.id)}
+                        >
+                            <div className="notification-title">{notification.title}</div>
+                            <div>{notification.message}</div>
+                            <div className="notification-time">
+                                {new Date(notification.time).toLocaleString()}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
